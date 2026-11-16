@@ -210,6 +210,27 @@ docker buildx build \
   -f Dockerfile .
 ```
 
+## Prebuilt images via GitHub Actions
+
+This fork builds images in CI, so the iTop version is pinned in the repository
+instead of depending on an upstream tag being refreshed. Trigger the
+`Build iTop image` workflow (Actions -> Run workflow) with:
+
+- `itop_version` — label for the image tag, e.g. `3.3.0-1`
+- `itop_download_url` — direct link to the iTop release zip
+- `target` — `base` (no MySQL, external DB) or `full` (bundled MariaDB)
+- `platforms` — `linux/amd64` or both
+
+The result is pushed to GHCR:
+
+```shell
+docker pull ghcr.io/<owner>/itop:3.3.0-1-base
+```
+
+After the first push the package is private by default: either set its
+visibility to public (Packages -> package -> Package settings -> Change
+visibility) or log in on the target host with a token having `read:packages`.
+
 ## Links
 
  - [GitHub repo](https://github.com/vbkunin/itop-docker)

@@ -35,18 +35,23 @@ ARG ITOP_TMP_WEB
 ENV LOG_STDOUT=/var/www/html/log/setup.log:itop-setup,/var/www/html/log/cron.log:itop-cron,/var/log/apache2/access.log:apache-access \
     LOG_STDERR=/var/www/html/log/error.log:itop-error,/var/log/apache2/error.log:apache-error
 
-# Install and configure Apache Httpd and PHP
+# Install and configure Apache Httpd and PHP.
+# mariadb-client is required by iTop's itop-backup module: it shells out to
+# `mysqldump`, and mariadb-client may ship only mariadb-dump, so the symlink is
+# created explicitly when missing.
 RUN apt-get update && apt-get install -y software-properties-common ca-certificates \
     && apt-get update \
     && apt-get install -y \
         apache2 \
         php8.3 php8.3-xml php8.3-mysql php8.3-mbstring php8.3-ldap php8.3-soap php8.3-zip php8.3-gd php8.3-curl php8.3-apcu php8.3-imap \
         graphviz \
+        mariadb-client \
         curl \
         unzip\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && update-alternatives --set php /usr/bin/php8.3
+    && update-alternatives --set php /usr/bin/php8.3 \
+    && { [ -x /usr/bin/mysqldump ] || ln -s /usr/bin/mariadb-dump /usr/bin/mysqldump; }
 
 # Copy services, configs and scripts
 COPY base/service /etc/service/
